@@ -5,3 +5,4 @@ JWT_SECRET
 2. npm install
 3. node createAdmin.js
 4. npm run dev
+5.test CICD

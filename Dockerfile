@@ -3,7 +3,7 @@ FROM node:22.1.0
 
 # Thiết lập thư mục làm việc bên trong container là /demoexpress
 # Mọi lệnh sau đó sẽ được thực thi trong thư mục này
-WORKDIR /demoexpress
+WORKDIR /pollvoteapp
 
 # Sao chép 2 file package.json và package-lock.json (nếu có) vào container
 # Điều này giúp tận dụng cache của Docker để không phải cài lại npm packages nếu không thay đổi

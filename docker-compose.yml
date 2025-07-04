@@ -26,7 +26,7 @@ services:
       - pollvoteapp_network
 
 networks:
-  pollvote_network:
+  pollvoteapp_network:
     driver: bridge
 
 volumes:

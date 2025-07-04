@@ -1,28 +1,73 @@
-name: Deploy to EC2
+name: CI/CD Pipeline for PollVote
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          node-version: '22'
 
-      - name: SSH into EC2 and deploy
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@54.226.63.49 << 'EOF'
+      - name: Install dependencies
+        run: npm install
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t quangsanh1501/pollvoteapp:latest .
+
+      - name: Push Docker image
+        run: docker push quangsanh1501/pollvoteapp:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/PollVoteApp || git clone https://github.com/YoYo1501/PollVoteApp.git ~/PollVoteApp
             cd ~/PollVoteApp
-            git pull origin main
-            docker-compose down
-            docker-compose up --build -d
-          EOF
+            docker-compose down || true
+            docker pull quangsanh1501/pollvoteapp:latest
+            docker-compose up -d
+            docker image prune -f
+
+      - name: Send notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "Pipeline completed successfully!"
+            echo "Deployment ready for PollVote"
+          else
+            echo "Pipeline failed!"
+            echo "Please check the logs for issues"
+          fi
+
+      - name: Generate deployment report
+        if: success()
+        run: |
+          echo "Deployment Report" > deployment-report.txt
+          echo "===================" >> deployment-report.txt
+          echo "Date: $(date)" >> deployment-report.txt
+          echo "Branch: ${{ github.ref_name }}" >> deployment-report.txt
+          echo "Commit: ${{ github.sha }}" >> deployment-report.txt
+          echo "Author: ${{ github.actor }}" >> deployment-report.txt
+          echo "Status: SUCCESS" >> deployment-report.txt
+          echo "" >> deployment-report.txt
+          echo "Image pushed to Docker Hub" >> deployment-report.txt
+          echo "Deployed to EC2 successfully" >> deployment-report.txt

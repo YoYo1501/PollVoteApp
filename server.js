@@ -25,11 +25,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/polls", pollRoutes);
 app.use("/api/votes", voteRoutes);
 
-//test cicd
-
-app.get("/hello", (req, res) => {
+//test ci_cd
+app.get("/hello", (req,res){
   res.send("Hello World");
-});
+})
 
 const PORT = process.env.PORT || 3000;
 

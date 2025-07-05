@@ -27,7 +27,7 @@ app.use("/api/votes", voteRoutes);
 
 //test cicd
 app.get("/hello", (req,res) => {
-  res.send("Hello World!");
+  res.send("Hello mọi người");
 
 })
 

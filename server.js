@@ -27,8 +27,7 @@ app.use("/api/votes", voteRoutes);
 
 //test cicd
 app.get("/hello", (req,res) => {
-  res.send("Hello mọi người");
-
+  res.send("Hello moi nguoi");
 })
 
 const PORT = process.env.PORT || 3000;

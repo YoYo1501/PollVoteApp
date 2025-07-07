@@ -29,7 +29,6 @@ app.use("/api/votes", voteRoutes);
 app.get("/hello", (req,res) =>{
   res.send("Hello");
 }
-
 )
 
 const PORT = process.env.PORT || 3000;

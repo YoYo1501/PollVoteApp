@@ -30,6 +30,9 @@ app.get("/hello", (req,res) =>{
   res.send("Hello");
 }
 )
+app.get("/hi", (req,res)=>{
+  res.send("I'm Quang Sanh");
+})
 
 const PORT = process.env.PORT || 3000;
 

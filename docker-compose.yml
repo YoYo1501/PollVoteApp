@@ -1,3 +1,4 @@
+version: "3"
 services:
   db:
     image: mongo:7.0
@@ -10,11 +11,11 @@ services:
     volumes:
       - mongodb:/data/db
 
-  myapp:
+  pollvoteapp:
     image: quangsanh1501/pollvoteapp:latest
     container_name: pollvoteapp
     ports:
-      - '${PORT}:${PORT}'
+      - '${PORT}:${PORT}'  # Vẫn giữ nguyên mapping cũ
     depends_on:
       - db
     restart: always
@@ -24,10 +25,26 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     networks:
       - pollvoteapp_network
+      - proxy
+
+  nginx-proxy:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "81:81"   # Trang quản trị Nginx Proxy Manager
+      - "443:443"
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - proxy
 
 networks:
   pollvoteapp_network:
     driver: bridge
+  proxy:
 
 volumes:
   mongodb:
